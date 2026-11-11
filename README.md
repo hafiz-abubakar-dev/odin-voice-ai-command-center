@@ -26,12 +26,14 @@ The project is modularized into dedicated frontend, backend, and documentation d
     │   ├── sub-agent-social-media.json         # Facebook/Instagram content manager
     │   └── sub-agent-whatsapp.json             # WhatsApp Cloud API integration
     └── screenshots/                            # Visual architecture & execution proofs
-        ├── 01-odin-dashboard-ui...
-        ├── 02-n8n-core-architecture.png
-        ├── 03-sub-agents-tools-layout.png
-        ├── 04-vscode-custom-react-code.png
-        └── 05-live-payload-execution.png
-
+        ├── 01-odin-dashboard-ui 1.png.png
+        ├── 01-odin-dashboard-ui 2.png.png
+        ├── 01-odin-dashboard-ui 3.png.png
+        ├── 01-odin-dashboard-ui 4.png.png
+        ├── 02-n8n-core-architecture.png.png
+        ├── 03-sub-agents-tools-layout.png.png
+        ├── 04-vscode-custom-react-code.png.png
+        └── 05-live-payload-execution.png.png
 ---
 
 ## 🏗️ Core Architecture & Tech Stack
