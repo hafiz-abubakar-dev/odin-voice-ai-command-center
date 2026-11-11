@@ -9,31 +9,63 @@ Unlike standard text-based chatbots, Odin is a fully autonomous "Digital Employe
 
 ---
 
+## 🖼️ Project Screenshots & UI Previews
+
+Here is the visual walkthrough of the entire system architecture and execution:
+
+### 1. React Frontend Command Center UI
+*Scrollable view of the custom React dashboard interface:*
+
+![Odin Dashboard UI Part 1](screenshots/01-odin-dashboard-ui%201.png.png)
+<br>
+![Odin Dashboard UI Part 2](screenshots/01-odin-dashboard-ui%202.png.png)
+<br>
+![Odin Dashboard UI Part 3](screenshots/01-odin-dashboard-ui%203.png.png)
+<br>
+![Odin Dashboard UI Part 4](screenshots/01-odin-dashboard-ui%204.png.png)
+
+### 2. n8n Core Architecture
+*Main n8n orchestration canvas showing Webhook, Qwen LLM, and Alibaba TTS nodes:*
+
+![n8n Core Architecture](screenshots/02-n8n-core-architecture.png.png)
+
+### 3. Operational Sub-Agents Layout
+*Visual layout of the 5 connected operational sub-agents (Calendar, CRM, Email, Social Media, WhatsApp):*
+
+![Sub Agents Tools Layout](screenshots/03-sub-agents-tools-layout.png.png)
+
+### 4. VS Code Custom React Code
+*VS Code snippet proving custom audio handling and English TTS fallback disable:*
+
+![VS Code Custom React Code](screenshots/04-vscode-custom-react-code.png.png)
+
+### 5. Live Payload Execution
+*Proof of successful dynamic JSON payload execution and auto-play delivery:*
+
+![Live Payload Execution](screenshots/05-live-payload-execution.png.png)
+
+---
+
 ## 📂 Repository Structure
 
 The project is modularized into dedicated frontend, backend, and documentation directories:
 
-    odin-voice-ai-command-center/
-    ├── frontend-dashboard/                     # Custom React UI
-    │   ├── App.tsx                             # Core UI, Webhook integration & audio execution
-    │   ├── audioEffects.ts                     # TTS fallback suppression logic
-    │   └── package.json                        # Frontend dependencies
-    ├── n8n-workflows/                          # Backend Orchestration & Agents
-    │   ├── odin-main-orchestrator.json         # Core Qwen LLM Brain & Webhook handler
-    │   ├── sub-agent-calendar-manager.json     # Google Calendar operations
-    │   ├── sub-agent-crm-contacts.json         # Airtable CRM integration
-    │   ├── sub-agent-email-handler.json        # Gmail inbox & drafting operations
-    │   ├── sub-agent-social-media.json         # Facebook/Instagram content manager
-    │   └── sub-agent-whatsapp.json             # WhatsApp Cloud API integration
-    └── screenshots/                            # Visual architecture & execution proofs
-        ├── 01-odin-dashboard-ui 1.png.png
-        ├── 01-odin-dashboard-ui 2.png.png
-        ├── 01-odin-dashboard-ui 3.png.png
-        ├── 01-odin-dashboard-ui 4.png.png
-        ├── 02-n8n-core-architecture.png.png
-        ├── 03-sub-agents-tools-layout.png.png
-        ├── 04-vscode-custom-react-code.png.png
-        └── 05-live-payload-execution.png.png
+```text
+odin-voice-ai-command-center/
+├── frontend-dashboard/                     # Custom React UI
+│   ├── App.tsx                             # Core UI, Webhook integration & audio execution
+│   ├── audioEffects.ts                     # TTS fallback suppression logic
+│   └── package.json                        # Frontend dependencies
+├── n8n-workflows/                          # Backend Orchestration & Agents
+│   ├── odin-main-orchestrator.json         # Core Qwen LLM Brain & Webhook handler
+│   ├── sub-agent-calendar-manager.json     # Google Calendar operations
+│   ├── sub-agent-crm-contacts.json         # Airtable CRM integration
+│   ├── sub-agent-email-handler.json        # Gmail inbox & drafting operations
+│   ├── sub-agent-social-media.json         # Facebook/Instagram content manager
+│   └── sub-agent-whatsapp.json             # WhatsApp Cloud API integration
+└── screenshots/                            # Visual architecture & execution proofs
+```
+
 ---
 
 ## 🏗️ Core Architecture & Tech Stack
