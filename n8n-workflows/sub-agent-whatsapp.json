@@ -1,0 +1,161 @@
+{
+  "name": "WhatsApp Agent for Odin",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        -160
+      ],
+      "id": "e9a39e71-7711-43f4-9c79-0aa9fe4b9984",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "You are the dedicated WhatsApp Sub-Agent for the Odin AI assistant.\nYour job is to send WhatsApp messages, gemstone inquiries, tracking updates, and follow-ups to customers.\n\nKey Responsibilities:\n1. Format Recipient Number: Ensure the recipient phone number is formatted correctly with the international country code (e.g., 923xxxxxxxxx without '+' or dashes).\n2. Send Message: Extract the recipient number and the message text from the instruction, then trigger the WhatsApp tool to send the message.\n3. Polite & Professional: Ensure messages sound professional, clear, and courteous.\n4. Confirmation: Return a concise confirmation response (e.g., \"WhatsApp message sent successfully to 923xxxxxxxxx: [preview of message]\")."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -16,
+        -160
+      ],
+      "id": "edd4824d-d858-40c2-8e53-32f5b47fd3d8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "whatsapp_agent_session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        112
+      ],
+      "id": "b5ef5c51-dfc7-44e0-99a5-3d8ac8277b41",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to send automated WhatsApp messages to customers for order confirmations, gemstone details, or replies. Requires recipient phone number and text body.",
+        "operation": "send",
+        "phoneNumberId": "=1253374117870027",
+        "recipientPhoneNumber": "={{ $fromAI('recipient_phone', 'The customer phone number with country code, e.g., 923001234567') }}",
+        "textBody": "={{ $fromAI('message_body', 'The complete text message content to send on WhatsApp') }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTool",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        48
+      ],
+      "id": "834e3405-99ce-45f9-9f0f-51436507c8a2",
+      "name": "Send message in WhatsApp Business Cloud",
+      "webhookId": "f9c0116f-6dcd-428f-8ea4-76c141c53b6b",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen3.7-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        80
+      ],
+      "id": "4a509ac6-4582-47d9-bb32-fe9dc0580fdc",
+      "name": "Qwen Cloud Chat Model",
+      "credentials": {
+        "alibabaCloudApi": {
+          "id": "",
+          "name": "Qwen Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message in WhatsApp Business Cloud": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d4cb82f1-dcb2-461f-aa6a-e4c448cccacf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "nodeGroups": [],
+  "id": "ycXDPrJ8RfLZOLJe",
+  "tags": []
+}

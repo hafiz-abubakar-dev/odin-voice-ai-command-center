@@ -1,0 +1,224 @@
+{
+  "name": "Social Media Agent for Odin",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "action_type"
+            },
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        -96
+      ],
+      "id": "e9890a04-105e-4e3c-9831-ebe31b401ecd",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Action: {{ $json.action_type }} | Details: {{ $json.clean_query }} | Priority: {{ $json.is_priority_lead }}",
+        "options": {
+          "systemMessage": "You are the dedicated Social Media & Customer Engagement Agent for \"Haider Gemstone & Ring Maker\".\n\nYour Responsibilities:\n1. Content Creation: When action is 'create_post', write engaging Facebook/Instagram captions with proper hashtags, ring specs, and WhatsApp COD order details.\n2. Comment Replies: When action is 'reply_comment', draft a polite, direct, and professional reply directing serious gemstone inquiries to WhatsApp with verified guidance.\n3. Notification Trigger: Whenever a comment reply is posted, trigger the email notification tool immediately so the business owner stays informed."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -144,
+        -96
+      ],
+      "id": "91087b73-1449-40a3-b570-f47348f037b3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "content_agent_session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -352,
+        224
+      ],
+      "id": "7d8de965-5af4-49c7-b1e4-f8cdfb923159",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "# Web data ya comment input ko process karna\nraw_items = _input.all()\nfiltered_results = []\n\nfor item in raw_items:\n    data = item.json\n    text_content = data.get(\"query\", \"\").lower()\n    \n    # Filter keywords (price, delivery, gemstone types)\n    target_keywords = [\"price\", \"rate\", \"keemat\", \"order\", \"aqeeq\", \"feroza\", \"silver\", \"delivery\"]\n    is_relevant = any(keyword in text_content for keyword in target_keywords)\n    \n    filtered_results.append({\n        \"clean_query\": data.get(\"query\", \"\").strip(),\n        \"is_priority_lead\": is_relevant,\n        \"action_type\": data.get(\"action_type\", \"create_post\")\n    })\n\nreturn filtered_results"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        -96
+      ],
+      "id": "6e851475-6409-463f-a289-653fc8719334",
+      "name": "Code in Python"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to search the live web for current gemstone market prices, trending designs, or general information.",
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', `The web search query. Write a specific, self-contained query that names the people, products, places or versions involved. Do not add years or dates you are not sure of; use time_range to ask for recent results instead. To limit results to specific websites, use include_domains rather than site: in the query.`, 'string') }}",
+        "searchDepth": "basic",
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        208
+      ],
+      "id": "54348988-8750-4f92-a4c7-8366fded1b22",
+      "name": "Search the web in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "\"Use this tool to publish posts on Facebook/Instagram or reply directly to a specific comment ID.\"",
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $fromAI('comment_id', 'The Facebook or Instagram comment ID to reply to') }}/comments",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"{{ $fromAI('reply_message', 'The polite and helpful reply text to be posted on the customer comment') }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        96,
+        208
+      ],
+      "id": "86b52d9e-6bce-4045-9e8a-ffde49a3912c",
+      "name": "social_media_publisher",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen3.7-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        208
+      ],
+      "id": "d6cd6126-022e-4a8b-8eaf-a27754244438",
+      "name": "Qwen Cloud Chat Model",
+      "credentials": {
+        "alibabaCloudApi": {
+          "id": "",
+          "name": "Qwen Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in Python",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search the web in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "social_media_publisher": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a89ecf2e-fbfc-4b21-a975-b1de6a1af5ff",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "nodeGroups": [],
+  "id": "4nEOZpv1lFIygcJW",
+  "tags": []
+}

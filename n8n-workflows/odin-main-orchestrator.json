@@ -1,0 +1,538 @@
+{
+  "name": "Odin",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "odinn8n",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -688,
+        -208
+      ],
+      "id": "c931cd34-1ed2-48cf-a472-a32dce2e3c54",
+      "name": "Webhook",
+      "webhookId": "ded4936b-ae13-44a2-a7ca-66d48c3ae2db"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"response\": {{ JSON.stringify($('AI Agent').item.json.output) }},\n  \"audio_url\": \"{{ $('HTTP Request1').first().json.output.audio.url }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        656,
+        -208
+      ],
+      "id": "0b8cd81b-3be6-4db4-9cdc-a0cd75338a5a",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.sentence.text }}",
+        "options": {
+          "systemMessage": "=# ROLE & IDENTITY\nYou are **Odin**, the Executive AI Operations Director and Master Orchestrator for **\"Haider Gemstone\"** (حیدر جم سٹون). \nYour primary mission is to autonomously manage business operations, coordinate customer relations, schedule workshops/meetings, manage social media presence, and execute multi-channel communications (WhatsApp & Email) by delegating tasks to your 5 specialized Sub-Agent Tools.\n\n---\n\n# DYNAMIC TIME & LOCATION CONTEXT\n- **Current Date & Time:** {{ $now.setZone('Asia/Karachi').toFormat('cccc, LLLL dd, yyyy - hh:mm a') }}\n- **Timezone:** Asia/Karachi (PKT / UTC+5)\n- **Business Location:** Burewala, Punjab, Pakistan\n- **Instruction:** Always calculate relative dates (e.g., \"kal\", \"tomorrow\", \"parso\", \"next Monday\", \"aaj raat 9 baje\") strictly based on the Current Date & Time provided above.\n\n---\n\n# BUSINESS DOMAIN KNOWLEDGE (HAIDER GEMSTONE)\nUse this context whenever guiding sub-agents or interpreting user requests:\n- **Core Products:** 100% natural, certified gemstones (Irani & Pakistani Feroza/Turquoise, Yemeni & Sulaimani Aqeeq/Agate, Neelam/Sapphire, Zamarrud/Emerald, Yaqoot/Ruby, Pukhraaj, Opal, Lapis Lazuli, Quartz, Dur-e-Najaf) and custom handmade rings, lockets, bracelets, and Tasbeeh.\n- **Craftsmanship & Materials:** Pure Italian Silver (925 Sterling Silver), Copper, White Copper, Brass, and Gold alloys; custom hand-engraving and stone settings.\n- **Sales & Delivery Policy:** Nationwide Cash on Delivery (COD) across Pakistan; WhatsApp is the primary sales and support channel.\n\n---\n\n# AVAILABLE SUB-AGENT TOOLS & STRICT ROUTING PROTOCOLS\nYou do NOT perform external database, messaging, or calendar actions yourself—you MUST invoke the appropriate sub-agent tool below:\n\n### 1. `Call 'Calendar Agent for Odin'` (Google Calendar Management)\n- **When to Call:** Whenever the user asks to schedule, book, check, list, reschedule, update, or delete any meeting, appointment, reminder, or workshop task.\n- **Input Construction (`query`):** Pass a crystal-clear instruction containing:\n  1. Action (Create / Get / Update / Delete)\n  2. Exact Event Title/Summary (e.g., \"New Project Workflow Discussion\")\n  3. Exact Start Time & End Time in ISO format or explicit date/time string calculated from `{{ $now }}` (Default duration: 1 hour if not specified by the user).\n\n### 2. `Call 'Contact Agent for Odin'` (Airtable CRM & Lead Management)\n- **When to Call:** Whenever the user asks to search for a customer, get a phone number/email/address, add a new lead, update deal status, or check gemstone order requirements in the CRM.\n- **Input Construction (`query`):** Clearly specify the customer's name, phone number, city, stone preference, or the exact database lookup/update action required.\n\n### 3. `Call 'WhatsApp Agent for Odin'` (WhatsApp Cloud API Messaging)\n- **When to Call:** Whenever the user wants to send a WhatsApp message, order confirmation, payment reminder, tracking update, or meeting alert to a customer.\n- **Input Construction (`query`):** Include the recipient's verified phone number (with country code, e.g., `923...`) and the exact, polite message text to be sent.\n- **CRITICAL DEPENDENCY RULE:** If the user says *\"Ali Raza ko WhatsApp kar do\"* and does NOT provide the phone number in the prompt, you MUST first call `Contact Agent` to fetch Ali Raza's phone number, wait for the result, and THEN call `WhatsApp Agent` with that number.\n\n### 4. `Call 'Email Agent for Odin'` (Gmail Business Operations)\n- **When to Call:** Whenever the user asks to read/check incoming emails, send a business email, draft a reply, or delete emails.\n- **Input Construction (`query`):** Specify the action (send/read/draft), recipient email address, subject line, and complete body content. (If recipient email is unknown, look it up via `Contact Agent` first).\n\n### 5. `Call 'Social Media Agent for Odin'` (Content & Comment Management)\n- **When to Call:** Whenever the user wants to create Facebook/Instagram post captions, write marketing copy for gemstones/rings, reply to customer comments on social media, or trigger owner alerts.\n- **Input Construction:**\n  - `action_type`: Must be strictly either `create_post` (for generating/publishing new posts and captions) OR `reply_comment` (for responding to customer comments/inquiries).\n  - `query`: The detailed topic, ring/stone specifications (e.g., \"Pakistani Feroza in 925 handmade silver ring\"), or the incoming customer comment text.\n\n---\n\n# MULTI-STEP REASONING & EXECUTION ENGINE (CHAIN-OF-THOUGHT)\nBefore responding to any user input, follow this internal execution loop:\n1. **Analyze Intent:** Understand the user's request whether it is in Urdu, Roman Urdu, or English (e.g., *\"Kal raat 9 baje meeting set karo aur Ali ko WhatsApp par bata do\"*).\n2. **Identify Required Tools:** Determine if the request needs a single tool or a sequential chain of tools (e.g., Step 1: Calendar Agent -> Step 2: Contact Agent -> Step 3: WhatsApp Agent).\n3. **Format Parameters Accurately:** Ensure every required field (`query`, `action_type`) is populated cleanly as plain text strings without broken JSON characters.\n4. **Execute Immediately:** Do NOT ask the user for confirmation before calling a tool if you already have sufficient information (such as date, time, or topic). Execute the tool directly.\n5. **Verify Output:** Read the response returned by the sub-agent tool. Never hallucinate or claim a task is done unless the sub-agent tool was actually called and returned a result.\n\n---\n\n# STRICT GUARDRAILS (ANTI-HALLUCINATION RULES)\n- **NO FAKE CONFIRMATIONS:** Never say *\"Maine meeting schedule kar di hai\"* or *\"WhatsApp bhej diya hai\"* without actually triggering the corresponding tool first.\n- **ERROR HANDLING:** If a sub-agent tool returns an error or fails to find a contact, honestly inform the user what went wrong and ask for the missing detail (e.g., *\"Airtable CRM mein Ali ke naam se number nahi mila, baraye meharbani number bata dein\"*).\n- **TOOL PARAMETER INTEGRITY:** When calling `Social Media Agent`, always supply BOTH `action_type` and `query`.\n\n---\n\n# RESPONSE & LANGUAGE STYLE\n- **Language Match:** You MUST strictly reply in Roman Urdu (Pakistani WhatsApp style language using English alphabets). Do NOT use Arabic or Urdu script.\n- **Voice & Chat Optimized:** Keep your final response concise, clear, and action-oriented so it sounds natural both in the n8n Chat Window and when spoken aloud via voice. Keep the tone extremely professional and deliberate.\n- *Good Example:* \"Ji Haider bhai, kal raat 9:00 PM se 10:00 PM tak 'New Project Workflow' ki meeting Google Calendar par schedule ho gayi hai.\"\nYou must strictly reply in very simple, clear Roman Urdu using standard English spellings. Avoid complex slang or broken words so the audio engine can pronounce every word smoothly"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        64,
+        -208
+      ],
+      "id": "dd83bb9b-d54a-41c9-afd9-6ea68134d922",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "haider_session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -320,
+        128
+      ],
+      "id": "1a3f27b4-547a-4d6f-8681-a3bab4cd1a23",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "description": "\"Use this tool to manage Google Calendar events. It can create, read (get many), update, or delete calendar events based on user requests.\"",
+        "workflowId": {
+          "__rl": true,
+          "value": "v8zSIgEhg5VOnHlx",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/v8zSIgEhg5VOnHlx",
+          "cachedResultName": "Calendar Agent for Odin"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI('query', 'The specific calendar action, meeting details, or event query to execute') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -192,
+        176
+      ],
+      "id": "3de8bfbe-90db-42c1-b43e-77aa5b0ea414",
+      "name": "Call 'Calendar Agent for Odin'"
+    },
+    {
+      "parameters": {
+        "description": "\"Use this tool to read, send, reply to, draft, or delete emails using Gmail.\"",
+        "workflowId": {
+          "__rl": true,
+          "value": "hPHSp9Jx9M5n9FzC",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/hPHSp9Jx9M5n9FzC",
+          "cachedResultName": "Email Agent for Odin"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI('query', 'The specific email action, recipient details, subject, or email query to execute') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        176
+      ],
+      "id": "cd283552-48af-4068-940c-1dfac340ed40",
+      "name": "Call 'Email Agent for Odin'"
+    },
+    {
+      "parameters": {
+        "description": "\"Use this tool to search, retrieve, create, or update customer contact details (Name, Phone Number, Email, City, Requirements, Deal Stage) in the Airtable CRM.\"",
+        "workflowId": {
+          "__rl": true,
+          "value": "4GOwzAL1WFMIabr5",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/4GOwzAL1WFMIabr5",
+          "cachedResultName": "Contact Agent for Odin"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI('query', 'The customer contact inquiry, name to search, details to update, or new lead to save in CRM') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        176
+      ],
+      "id": "014c777e-6555-4473-b152-c4727a8c1b46",
+      "name": "Call 'Contact Agent for Odin'"
+    },
+    {
+      "parameters": {
+        "description": "\"Use this tool to send WhatsApp messages, order updates, stone pictures descriptions, or notifications to customers using their phone number.\"",
+        "workflowId": {
+          "__rl": true,
+          "value": "ycXDPrJ8RfLZOLJe",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ycXDPrJ8RfLZOLJe",
+          "cachedResultName": "WhatsApp Agent for Odin"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ $fromAI('query', 'The customer phone number and the message text or update to send via WhatsApp') }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        176
+      ],
+      "id": "a54db1bc-3072-4d05-840a-8d02cb4aa54a",
+      "name": "Call 'WhatsApp Agent for Odin'"
+    },
+    {
+      "parameters": {
+        "description": "Use this tool to generate social media marketing copy, captions for Facebook and Instagram, handle customer comment replies, and send owner email alerts.",
+        "workflowId": {
+          "__rl": true,
+          "value": "4nEOZpv1lFIygcJW",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/4nEOZpv1lFIygcJW",
+          "cachedResultName": "Social Media Agent for Odin"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "action_type": "={{ $fromAI(`action_type`, `create_post or reply_comment`) }}",
+            "query": "={{ $fromAI('query', 'The post topic, ring details, or incoming comment text to reply to') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "action_type",
+              "displayName": "action_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        176
+      ],
+      "id": "2cd8c971-660d-4181-968b-c2df9fc46192",
+      "name": "Call 'Social Media Agent for Odin'1"
+    },
+    {
+      "parameters": {
+        "model": "qwen3.7-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        112
+      ],
+      "id": "ae919810-a2fa-4acd-ad82-c894baa57b4d",
+      "name": "Qwen Cloud Chat Model",
+      "credentials": {
+        "alibabaCloudLM": {
+          "id": "1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ws-5oovhkelo8me9g3z.ap-southeast-1.maas.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer Your-API-Key-Here"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"qwen-audio-3.1-asr-flash\",\n  \"input\": {\n    \"messages\": [\n      {\n        \"role\": \"user\",\n        \"content\": [\n          {\n            \"type\": \"text\",\n            \"text\": \"You are a professional transcriber. You MUST transcribe the audio directly into pure Urdu (اردو) script. DO NOT output in Hindi or Devanagari script.\"\n          },\n          {\n            \"type\": \"input_audio\",\n            \"input_audio\": {\n              \"data\": \"{{ $json.base64_audio }}\"\n            }\n          }\n        ]\n      }\n    ]\n  },\n  \"parameters\": {\n    \"format\": \"wav\",\n    \"sample_rate\": \"16000\",\n    \"language\": \"ur\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -144,
+        -208
+      ],
+      "id": "da6ec129-02c6-4585-bc27-e1dc76446607",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.all()[0];\nconst binaryData = item.binary;\n\nif (binaryData) {\n    // Pehli file (audio) ka naam nikalna\n    const fileKey = Object.keys(binaryData)[0];\n    const fileObject = binaryData[fileKey];\n    \n    // Binary ko parhna aur Base64 mein badalna\n    const fileBuffer = await this.helpers.getBinaryDataBuffer(0, fileKey);\n    const base64Encoded = fileBuffer.toString('base64');\n    const mimeType = fileObject.mimeType || 'audio/wav';\n    \n    // Qwen ke liye Data URI format banana\n    const finalBase64Data = `data:${mimeType};base64,${base64Encoded}`;\n    \n    // Agle node ko bhejna\n    return [{ json: { base64_audio: finalBase64Data } }];\n} else {\n    return [{ json: { base64_audio: '' } }];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -416,
+        -208
+      ],
+      "id": "047ea6cf-7ed0-4796-9aac-71cadb01d88a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ws-5oovhkelo8me9g3z.ap-southeast-1.maas.aliyuncs.com/api/v1/services/audio/tts/SpeechSynthesizer",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer Your-API-Key-Here"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"qwen-audio-3.1-tts-next\",\n  \"input\": {\n    \"text_prompt\": {{ JSON.stringify($json.output) }}\n  },\n  \"parameters\": {\n    \"format\": \"wav\",\n    \"voice\": \"longcheng\",\n    \"sample_rate\": 16000,\n    \"rate\": 0.80\n  }\n}",
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        432,
+        -208
+      ],
+      "id": "20a97bdd-78ca-417f-bbf3-5afca968aea2",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Calendar Agent for Odin'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Email Agent for Odin'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Contact Agent for Odin'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'WhatsApp Agent for Odin'": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Social Media Agent for Odin'1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1dbffc5e-399b-426f-930b-9666323e49ef",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "nodeGroups": [],
+  "id": "8O5Yep7oqCh4j5Jx",
+  "tags": []
+}

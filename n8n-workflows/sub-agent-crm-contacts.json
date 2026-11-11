@@ -1,0 +1,497 @@
+{
+  "name": "Contact Agent for Odin",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        -224
+      ],
+      "id": "04b42fb2-b08a-4f27-81cf-cacc46f11fe3",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "You are the dedicated Contact Sub-Agent for the Odin AI assistant.\nYour job is to manage, retrieve, create, and update contact information (names, email addresses, phone numbers).\n\nKey Responsibilities:\n1. Search Contacts: When asked for a person's contact info, search the contacts database to find their email address or phone number, and return only the relevant details clearly.\n2. Create Contacts: When given a person's name and email/phone, create a new contact entry accurately.\n3. Update Contacts: When requested to change someone's contact details, update the corresponding record.\n4. Response Tone: Keep answers concise, factual, and direct so other workflows or the master agent can parse the information easily."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -176,
+        -224
+      ],
+      "id": "4f2801a7-b3c4-4de7-8f5a-3de038b9ef1d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "contact_agent_session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -176,
+        64
+      ],
+      "id": "a0d132a3-0c52-4507-9905-2e19c5c1c62d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to add a new customer lead or record to Airtable CRM. Requires customer name, phone number, city, stone required, deal stage, email, and notes.",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appOyIfE3xL74w1jA",
+          "mode": "list",
+          "cachedResultName": "Haider Gemstone CRM",
+          "cachedResultUrl": "https://airtable.com/appOyIfE3xL74w1jA"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblcYNa9NVIsk9rYV",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appOyIfE3xL74w1jA/tblcYNa9NVIsk9rYV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Deal Stage": "={{ $fromAI('deal_stage', 'The current stage of the deal, e.g., New Lead, Contacted, Confirmed') }}",
+            "Customer Name": "={{ $fromAI('customer_name', 'The full name of the customer') }}",
+            "Phone Number": "={{ $fromAI('phone_number', 'The customer phone number with country code') }}",
+            "City": "={{ $fromAI('city', 'The city name, e.g., Burewala or Lahore') }}",
+            "Stone Required": "={{ $fromAI('stone_required', 'The gemstone or ring type the customer wants, e.g., Feroza, Aqeeq') }}",
+            "Email": "={{ $fromAI('email', 'The customer email address if available') }}",
+            "Notes": "={{ $fromAI('notes', 'Any special requirements or instructions from the customer') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Stone Required",
+              "displayName": "Stone Required",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Deal Stage",
+              "displayName": "Deal Stage",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Inquiry",
+                  "value": "Inquiry"
+                },
+                {
+                  "name": "Hot Lead",
+                  "value": "Hot Lead"
+                },
+                {
+                  "name": "Order Placed",
+                  "value": "Order Placed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        64
+      ],
+      "id": "4cfa00a0-53bc-4f76-8847-493c7eb4413d",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to search for customer records, phone numbers, lead status, or gemstone preferences in Airtable CRM based on customer name, phone, or search query.",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appOyIfE3xL74w1jA",
+          "mode": "list",
+          "cachedResultName": "Haider Gemstone CRM",
+          "cachedResultUrl": "https://airtable.com/appOyIfE3xL74w1jA"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblcYNa9NVIsk9rYV",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appOyIfE3xL74w1jA/tblcYNa9NVIsk9rYV"
+        },
+        "filterByFormula": "={{ $fromAI('formula', 'Airtable formula to filter records, e.g., SEARCH(\"Ali\", {Name}) or {Phone} = \"03001234567\" or leave empty to list recent leads') }}",
+        "returnAll": false,
+        "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        48
+      ],
+      "id": "da47cb88-dca2-47de-83ad-663d1dc90d5d",
+      "name": "Search Record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to update an existing customer record or deal stage in Airtable CRM using the record ID. First call the Search Record tool to find the exact record ID.",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appOyIfE3xL74w1jA",
+          "mode": "list",
+          "cachedResultName": "Haider Gemstone CRM",
+          "cachedResultUrl": "https://airtable.com/appOyIfE3xL74w1jA"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblcYNa9NVIsk9rYV",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appOyIfE3xL74w1jA/tblcYNa9NVIsk9rYV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Deal Stage": "={{ $fromAI('deal_stage', 'Updated deal stage, e.g., Confirmed, Completed, Cancelled') }}",
+            "id": "={{ $fromAI('record_id', 'The unique Airtable record ID of the row to update') }}",
+            "Customer Name": "={{ $fromAI('customer_name', 'Updated customer name if changed') }}",
+            "Phone Number": "={{ $fromAI('phone_number', 'Updated phone number if changed') }}",
+            "City": "={{ $fromAI('city', 'Updated city name if changed') }}",
+            "Stone Required": "={{ $fromAI('stone_required', 'Updated gemstone preference if changed') }}",
+            "Email": "={{ $fromAI('email', 'Updated email address if changed') }}",
+            "Notes": "={{ $fromAI('notes', 'Updated or new notes to append') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "City",
+              "displayName": "City",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Stone Required",
+              "displayName": "Stone Required",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Deal Stage",
+              "displayName": "Deal Stage",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Inquiry",
+                  "value": "Inquiry"
+                },
+                {
+                  "name": "Hot Lead",
+                  "value": "Hot Lead"
+                },
+                {
+                  "name": "Order Placed",
+                  "value": "Order Placed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        48
+      ],
+      "id": "1df842cd-4fe3-489b-990f-99f7f7e35f99",
+      "name": "Update record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen3.7-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        32
+      ],
+      "id": "0f0bf67f-6106-4723-9307-943546719b18",
+      "name": "Qwen Cloud Chat Model",
+      "credentials": {
+        "alibabaCloudApi": {
+          "id": "",
+          "name": "Qwen Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Record": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update record": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c0816346-5cd8-4360-a9eb-3d38c4fae7cb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "nodeGroups": [],
+  "id": "4GOwzAL1WFMIabr5",
+  "tags": []
+}

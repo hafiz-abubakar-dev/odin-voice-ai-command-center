@@ -1,0 +1,311 @@
+{
+  "name": "Email Agent for Odin",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -592,
+        -288
+      ],
+      "id": "9becd365-35b9-4438-a98f-cc82ae0dbbf5",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "You are the dedicated Email Sub-Agent for the Odin AI assistant at \"Haider Gemstone & Ring Maker\".\nYour primary job is to handle all email-related tasks autonomously using your available Gmail tools.\n\n### Available Tools & Responsibilities:\n1. Get many Emails: Use this tool to search, list, or check incoming business emails. Always use this first to retrieve the correct Message ID when a user asks to reply to, delete, or check a specific email.\n2. Send Email: Use this tool to send a new business email directly to a recipient. Requires recipient email address, subject, and message body.\n3. Delete Email: Use this tool to delete an email by its unique Message ID.\n4. Reply Email: Use this tool to send a reply within an existing email thread using its Message ID.\n5. Create a draft Email: Use this tool when the user asks to prepare or draft an email without sending it immediately.\n\n### Execution Guidelines:\n- Always select the right tool based on the user's request.\n- If an email ID or message ID is required for operations like deleting or replying, search for it first using \"Get many Emails\".\n- Keep your final output clear, professional, and concise."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -368,
+        -288
+      ],
+      "id": "858257ac-e5ca-4905-acf5-0a3d62dfd848",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "email_agent_session"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -576,
+        0
+      ],
+      "id": "d5afc076-0fd7-4b08-b0c5-cd92f77bb5cf",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to search, list, or check emails in Gmail. Also use this tool first to find the exact Message ID or Thread ID before replying to or deleting an email.",
+        "operation": "getAll",
+        "limit": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Limit', ``, 'number') }}",
+        "filters": {
+          "q": "={{ $fromAI('search_query', 'Gmail search query to filter emails (e.g. from:name, subject:order, is:unread, or leave empty to get latest emails)') }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        160
+      ],
+      "id": "99f892ac-f895-4ca7-839a-4481b4024f4f",
+      "name": "Get many Emails",
+      "webhookId": "5ecb2dbf-ee20-47a5-bdcd-2b271c1dc785",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to send a new email via Gmail. Requires the recipient email address, subject line, and message body.",
+        "sendTo": "={{ $fromAI('to_email', 'The recipient email address (e.g. customer@example.com)') }}",
+        "subject": "={{ $fromAI('subject', 'The subject line of the email') }}",
+        "emailType": "text",
+        "message": "={{ $fromAI('message', 'The complete body content of the email to send') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -368,
+        160
+      ],
+      "id": "cc83a9eb-9dbe-4f55-9a84-fcb3a7bdd799",
+      "name": "Send Email",
+      "webhookId": "d64ddb3b-91a7-4438-bb1d-01993d3665b6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to reply to an existing email thread using its Message ID. First call the Get many Emails tool to find the exact Message ID if you do not have it.",
+        "operation": "reply",
+        "messageId": "={{ $fromAI('message_id', 'The unique Message ID of the email to reply to') }}",
+        "emailType": "text",
+        "message": "={{ $fromAI('reply_message', 'The complete body content of the reply message') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -96,
+        160
+      ],
+      "id": "6c570e91-f8c2-4563-bc48-d60aaa225418",
+      "name": "Reply Email",
+      "webhookId": "38ef23f0-7305-42cc-933e-ec5a543cbd82",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to create and save an email draft in Gmail without sending it immediately. Requires subject, message body, and recipient email.",
+        "resource": "draft",
+        "subject": "={{ $fromAI('subject', 'The subject line of the draft email') }}",
+        "message": "={{ $fromAI('message', 'The complete body content of the draft email') }}",
+        "options": {
+          "sendTo": "={{ $fromAI('to_email', 'The recipient email address for the draft (e.g. customer@example.com)') }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        160
+      ],
+      "id": "6aa3c73b-3f86-41a4-a2f0-fccdbcfb0551",
+      "name": "Create a draft Email",
+      "webhookId": "a82e455d-7956-45b7-b209-9cfe6b172f64",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to delete an email from Gmail using its unique Message ID. First call the Get many Emails tool to find the exact Message ID if you do not have it.",
+        "operation": "delete",
+        "messageId": "={{ $fromAI('message_id', 'The unique Message ID of the email to delete') }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        160
+      ],
+      "id": "14115211-061e-4427-8623-cb14acd7e32c",
+      "name": "Delete Email",
+      "webhookId": "313fad7d-fb89-4a32-92a5-32d9bf8eecc3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen3.7-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -32
+      ],
+      "id": "a9a94753-ada1-4fb6-bdf4-bdce6fef1466",
+      "name": "Qwen Cloud Chat Model",
+      "credentials": {
+        "alibabaCloudApi": {
+          "id": "",
+          "name": "Qwen Cloud account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many Emails": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "1dbfdb25-d15e-412a-a2b9-7d4b9ce2cdd5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "nodeGroups": [],
+  "id": "hPHSp9Jx9M5n9FzC",
+  "tags": []
+}

@@ -1,0 +1,301 @@
+{
+  "name": "Calendar Agent for Odin",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -384,
+        -128
+      ],
+      "id": "ce54de5c-5c6c-4b46-bcef-181f74a299ba",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "Haider_season"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -32,
+        -272
+      ],
+      "id": "1124925f-e330-409f-8e4b-fbfee83771ee",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to check existing calendar events, find free slots, or retrieve an event's ID before updating or deleting it.",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "abubakarjuttsab11@gmail.com",
+          "mode": "list",
+          "cachedResultName": "abubakarjuttsab11@gmail.com",
+          "cachedResultUrl": ""
+        },
+        "limit": 20,
+        "timeMin": "={{ $fromAI('time_min', 'Start of the time range to check in ISO 8601 format (e.g. 2026-11-09T00:00:00+05:00)') }}",
+        "timeMax": "={{ $fromAI('time_max', 'End of the time range to check in ISO 8601 format (e.g. 2026-11-16T23:59:59+05:00)') }}",
+        "options": {
+          "recurringEventHandling": "expand"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        96
+      ],
+      "id": "1a37d69d-bdfe-4245-8f02-0561dbe924a0",
+      "name": "Chack Schedule",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "abubakarjuttsab11@gmail.com",
+          "mode": "list",
+          "cachedResultName": "abubakarjuttsab11@gmail.com"
+        },
+        "start": "={{ $fromAI('start_time', 'Start date and time of the meeting in ISO format') }}",
+        "end": "={{ $fromAI('end_time', 'End date and time of the meeting in ISO format') }}",
+        "additionalFields": {
+          "description": "={{ $fromAI('description', 'Details or agenda of the meeting') }}",
+          "summary": "={{ $fromAI('summary', 'The title or subject of the meeting, e.g., Meeting with Hafiz Kamran') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        192,
+        96
+      ],
+      "id": "74212415-c953-4ed8-a694-a27c572154da",
+      "name": "Book Metting",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to delete or cancel a calendar event using its Event ID. First call the Check Schedule tool to find the exact Event ID if you do not have it.",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "abubakarjuttsab11@gmail.com",
+          "mode": "list",
+          "cachedResultName": "abubakarjuttsab11@gmail.com",
+          "cachedResultUrl": ""
+        },
+        "eventId": "={{ $fromAI('event_id', 'The unique ID of the calendar event to delete') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        96
+      ],
+      "id": "c4c26897-d227-4dcc-b51d-c75430468e81",
+      "name": "Delete Metting",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Use this tool to update, reschedule, or modify an existing calendar event using its Event ID. First call the Check Schedule tool to get the Event ID if you do not have it.",
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "abubakarjuttsab11@gmail.com",
+          "mode": "list",
+          "cachedResultName": "abubakarjuttsab11@gmail.com",
+          "cachedResultUrl": ""
+        },
+        "eventId": "={{ $fromAI('event_id', 'The unique ID of the calendar event to update') }}",
+        "updateFields": {
+          "description": "={{ $fromAI('description', 'Updated details or agenda of the meeting') }}",
+          "end": "={{ $fromAI('end_time', 'Updated end date and time in ISO 8601 format (e.g. 2026-11-10T22:00:00+05:00)') }}",
+          "start": "={{ $fromAI('start_time', 'Updated start date and time in ISO 8601 format (e.g. 2026-11-10T21:00:00+05:00)') }}",
+          "summary": "={{ $fromAI('summary', 'Updated title or subject of the meeting') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        96
+      ],
+      "id": "8fff5c5a-da00-4645-b447-3a92107da9c3",
+      "name": "Update Metting",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "# Role & Objective\nYou are the specialized \"Calendar Sub-Agent\" for Haider (Odin System). Your sole responsibility is to manage Haider's Google Calendar—including checking schedules, finding free slots, creating new events/meetings, and updating or deleting existing appointments.\n\n# Real-Time Date & Time Context\n- Current Date & Time: {{ $now }}\n- Timezone: Asia/Karachi (Pakistan Standard Time, UTC+5)\n- Always use the Current Date & Time above to accurately calculate relative dates like \"today\", \"tomorrow\", \"day after tomorrow\", \"this Friday\", or \"in 2 hours\".\n\n# Operating Rules\n1. Checking Schedule (Get Events):\n   - Before booking a new meeting or when asked about the schedule, use the \"Get Events\" tool for the requested date range (start of day 00:00:00 to end of day 23:59:59).\n   - Clearly list event titles, start times, and end times.\n\n2. Creating Events (Create Event):\n   - When asked to schedule/book an event, extract the Event Title (Summary), Start Time, and End Time in valid ISO-8601 format.\n   - If the user does not specify an End Time or duration, default the meeting duration to 1 hour (60 minutes).\n\n3. Response Format (For Voice Output):\n   - Your output goes back to the Mother Voice Agent. Keep your final response crisp, accurate, and in 1 to 2 simple sentences (e.g., \"Done. I have scheduled your meeting with Ali for tomorrow at 3:00 PM.\" or \"You have two meetings today: one at 2:00 PM and another at 5:00 PM.\").\n   - Never make up or guess calendar events. Always rely strictly on the Google Calendar tool output."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -160,
+        -128
+      ],
+      "id": "b4936d81-0b71-4542-8013-378bb96ec539",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "model": "qwen3.7-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAlibabaCloud",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -320
+      ],
+      "id": "b3969c0c-f8d1-44cd-a052-855e406e4a33",
+      "name": "Qwen Cloud Chat Model",
+      "credentials": {
+        "alibabaCloudApi": {
+          "id": "",
+          "name": ""
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chack Schedule": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Book Metting": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Metting": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Metting": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qwen Cloud Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Karachi",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "b7a5bf9a-9cc9-4edc-b957-b17aac5328ad",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": ""
+  },
+  "nodeGroups": [],
+  "id": "v8zSIgEhg5VOnHlx",
+  "tags": []
+}
